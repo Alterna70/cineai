@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineAI - IA Aplicada a la Producción Cinematográfica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js" rel="stylesheet">
+    <style>
+        :root {
+            /* Colores */
+            --primary-500: #D4AF37;
+            --primary-700: #B8860B;
+            --primary-100: #F0E68C;
+            --neutral-900: #0D1117;
+            --neutral-800: #161B22;
+            --neutral-700: #21262D;
+            --neutral-100: #E6EDF3;
+            --neutral-400: #84919E;
+            --success-500: #238636;
+            --warning-500: #D29922;
+            --error-500: #DA3633;
+            
+            /* Espaciado */
+            --space-xs: 8px;
+            --space-sm: 16px;
+            --space-md: 24px;
+            --space-lg: 32px;
+            --space-xl: 48px;
+            --space-xxl: 64px;
+            --space-xxxl: 96px;
+            
+            /* Tipografía */
+            --font-heading: 'Lora', serif;
+            --font-body: 'Inter', sans-serif;
+            
+            /* Bordes */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--neutral-900);
+            color: var(--neutral-100);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background-color: var(--neutral-800);
+            border-right: 1px solid var(--neutral-700);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: var(--space-lg);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-500);
+            margin-bottom: var(--space-xl);
+            text-align: center;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: var(--space-sm);
+            margin-bottom: var(--space-xs);
+            border-radius: var(--radius-md);
+            color: var(--neutral-400);
+            text-decoration: none;
+            transition: all 200ms ease-out;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            color: var(--neutral-100);
+            background-color: var(--neutral-700);
+        }
+
+        .nav-item.active {
+            color: var(--primary-500);
+            background-color: var(--neutral-700);
+            border-left: 3px solid var(--primary-500);
+        }
+
+        .nav-icon {
+            margin-right: var(--space-sm);
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: var(--space-xl);
+            max-width: calc(1280px - 280px);
+        }
+
+        .page-title {
+            font-family: var(--font-heading);
+            font-size: 56px;
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: var(--space-lg);
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-100));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: 40px;
+            font-weight: 600;
+            line-height: 1.3;
+            letter-spacing: -0.5px;
+            margin-bottom: var(--space-lg);
+            color: var(--primary-500);
+        }
+
+        .card {
+            background-color: var(--neutral-800);
+            border: 1px solid var(--neutral-700);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
+            transition: all 200ms ease-out;
+        }
+
+        .card:hover {
+            border-color: var(--primary-500);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: var(--space-sm);
+            margin: calc(var(--space-sm) * -1);
+            border-radius: var(--radius-md);
+            transition: background-color 200ms ease-out;
+        }
+
+        .card-header:hover {
+            background-color: var(--neutral-700);
+        }
+
+        .card-title {
+            font-family: var(--font-body);
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .card-content {
+            margin-top: var(--space-sm);
+            padding-top: var(--space-sm);
+            border-top: 1px solid var(--neutral-700);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 300ms ease-in-out;
+        }
+
+        .card.expanded .card-content {
+            max-height: 1000px;
+        }
+
+        .chevron {
+            width: 24px;
+            height: 24px;
+            transition: transform 200ms ease-out;
+        }
+
+        .card.expanded .chevron {
+            transform: rotate(180deg);
+        }
+
+        .timeline {
+            position: relative;
+            margin: var(--space-xl) 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--neutral-700);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: var(--space-xl);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 400ms ease-out forwards;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            text-align: right;
+        }
+
+        .timeline-dot {
+            width: 16px;
+            height: 16px;
+            background: var(--primary-500);
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        .timeline-content {
+            width: calc(50% - var(--space-xl));
+            background: var(--neutral-800);
+            padding: var(--space-md);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--neutral-700);
+            position: relative;
+        }
+
+        .timeline-year {
+            color: var(--primary-500);
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+        }
+
+        .timeline-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+        }
+
+        .timeline-description {
+            color: var(--neutral-400);
+            font-size: 16px;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-container {
+            margin-bottom: var(--space-lg);
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 56px;
+            background: var(--neutral-800);
+            border: 1px solid var(--neutral-700);
+            border-radius: var(--radius-md);
+            padding: 0 var(--space-md);
+            color: var(--neutral-100);
+            font-size: 16px;
+            transition: all 200ms ease-out;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+        }
+
+        .search-input::placeholder {
+            color: var(--neutral-400);
+        }
+
+        .grid {
+            display: grid;
+            gap: var(--space-md);
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--primary-100);
+            color: var(--primary-700);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: var(--space-xs);
+            margin-bottom: var(--space-xs);
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, rgba(212, 175, 55, 0.3) 0%, rgba(212, 175, 55, 0.1) 100%);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 300ms ease-out;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .page-title {
+                font-size: 40px;
+            }
+
+            .section-title {
+                font-size: 32px;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-item {
+                flex-direction: row !important;
+            }
+
+            .timeline-item:nth-child(odd) .timeline-content {
+                text-align: left;
+            }
+
+            .timeline-dot {
+                left: 20px;
+            }
+
+            .timeline-content {
+                width: calc(100% - 60px);
+                margin-left: 60px;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: var(--space-md);
+            left: var(--space-md);
+            z-index: 1001;
+            background: var(--neutral-800);
+            border: 1px solid var(--neutral-700);
+            border-radius: var(--radius-md);
+            padding: var(--space-sm);
+            color: var(--neutral-100);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: var(--space-xs) 0;
+            padding-left: var(--space-lg);
+            position: relative;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--primary-500);
+            font-weight: bold;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, var(--neutral-800) 0%, var(--neutral-700) 100%);
+            border-left: 4px solid var(--primary-500);
+        }
+
+        .glossary-term {
+            background: var(--neutral-800);
+            border: 1px solid var(--neutral-700);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md);
+            margin-bottom: var(--space-sm);
+        }
+
+        .glossary-term dt {
+            font-weight: 600;
+            color: var(--primary-500);
+            margin-bottom: var(--space-xs);
+        }
+
+        .glossary-term dd {
+            color: var(--neutral-400);
+            margin-left: 0;
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <div class="app-container">
+        <nav class="sidebar" id="sidebar">
+            <div class="logo">CineAI</div>
+            <div style="font-size: 12px; color: var(--neutral-400); text-align: center; margin-bottom: var(--space-md); padding: var(--space-sm); background: var(--neutral-700); border-radius: var(--radius-md);">
+                🎓 Herramienta Educativa<br>
+                IA en Producción Cinematográfica
+            </div>
+            
+            <a class="nav-item active" onclick="showSection('inicio')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9,22 9,12 15,12 15,22"></polyline>
+                </svg>
+                Inicio
+            </a>
+            
+            <a class="nav-item" onclick="showSection('video-generation')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                </svg>
+                Generación de Video
+            </a>
+            
+            <a class="nav-item" onclick="showSection('deepfakes')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+                    <path d="M20.59 13.41a2 2 0 0 0 0 2.83l2.83 2.83a2 2 0 0 0 2.83 0l2.83 -2.83a2 2 0 0 0 0 -2.83z"></path>
+                </svg>
+                Deepfakes y Actores Digitales
+            </a>
+            
+            <a class="nav-item" onclick="showSection('scriptwriting')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14,2 14,8 20,8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10,9 9,9 8,9"></polyline>
+                </svg>
+                Escritura de Guiones
+            </a>
+            
+            <a class="nav-item" onclick="showSection('vfx')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                VFX y Efectos Visuales
+            </a>
+            
+            <a class="nav-item" onclick="showSection('cinematography')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                Cinematografía Automatizada
+            </a>
+            
+            <a class="nav-item" onclick="showSection('sound')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+                Diseño de Sonido
+            </a>
+            
+            <a class="nav-item" onclick="showSection('timeline')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12,6 12,12 16,14"></polyline>
+                </svg>
+                Línea de Tiempo
+            </a>
+            
+            <a class="nav-item" onclick="showSection('casos-estudio')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                </svg>
+                Casos de Estudio
+            </a>
+            
+            <a class="nav-item" onclick="showSection('glosario')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                    <path d="M11 8a3 3 0 0 1 6 0v4H11z"></path>
+                </svg>
+                Glosario
+            </a>
+        </nav>
+
+        <main class="main-content">
+            <!-- Sección Inicio -->
+            <section id="inicio" class="content-section">
+                <h1 class="page-title">IA Aplicada a la Producción Cinematográfica</h1>
+                
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Buscar en el contenido..." onkeyup="searchContent(this.value)">
+                </div>
+
+                <div class="card case-study">
+                    <h2 style="color: var(--primary-500); margin-bottom: var(--space-md);">Bienvenidos al Futuro del Cine</h2>
+                    <p style="font-size: 18px; line-height: 1.7; margin-bottom: var(--space-md);">
+                        La inteligencia artificial está revolucionando la industria cinematográfica en todos los aspectos de la producción. 
+                        Desde la <span class="highlight">generación de video desde texto</span> hasta la <span class="highlight">automatización de efectos visuales</span>, 
+                        la IA está democratizando herramientas que antes estaban reservadas para grandes estudios.
+                    </p>
+                    <p style="color: var(--neutral-400); margin-bottom: var(--space-md);">
+                        <strong>Estadísticas clave del mercado:</strong>
+                    </p>
+                    <ul class="feature-list">
+                        <li>El mercado global de IA en cine alcanzará <strong>$14.1 billones USD para 2033</strong></li>
+                        <li>Crecimiento anual compuesto (CAGR) del <strong>22.8% desde 2024</strong></li>
+                        <li>Uso de IA en creación de contenido se incrementará <strong>75% para 2025</strong></li>
+                        <li>IA en post-producción crecerá <strong>40% para 2025</strong></li>
+                    </ul>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3 class="card-title">Aplicaciones Principales</h3>
+                        <ul class="feature-list" style="margin-top: var(--space-sm);">
+                            <li>Generación de video desde texto (Sora, Veo)</li>
+                            <li>Deepfakes y rejuvenecimiento digital</li>
+                            <li>Escritura y análisis de guiones</li>
+                            <li>Efectos visuales automatizados</li>
+                            <li>Cinematografía inteligente</li>
+                            <li>Diseño de sonido y música</li>
+                            <li>Producción virtual</li>
+                            <li>Marketing y distribución</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Impacto en la Industria</h3>
+                        <div style="margin-top: var(--space-sm);">
+                            <div class="tag">Democratización</div>
+                            <div class="tag">Reducción de Costos</div>
+                            <div class="tag">Mayor Velocidad</div>
+                            <div class="tag">Nuevas Formas Creativas</div>
+                            <div class="tag">Automatización</div>
+                            <div class="tag">Preocupaciones Éticas</div>
+                        </div>
+                        <p style="margin-top: var(--space-md); color: var(--neutral-400);">
+                            La IA está transformando tanto los procesos creativos como los técnicos, 
+                            creando nuevas oportunidades mientras plantea desafíos importantes sobre 
+                            el futuro del trabajo en la industria.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, var(--primary-500), var(--primary-700)); margin-top: var(--space-lg);">
+                    <h3 style="color: var(--neutral-900); text-align: center; margin-bottom: var(--space-md);">🚀 Navegación Rápida</h3>
+                    <div class="grid grid-3" style="gap: var(--space-sm);">
+                        <button onclick="showSection('video-generation')" style="background: var(--neutral-800); color: var(--neutral-100); border: none; padding: var(--space-sm); border-radius: var(--radius-md); cursor: pointer; transition: all 200ms;" onmouseover="this.style.background='var(--neutral-700)'" onmouseout="this.style.background='var(--neutral-800)'">
+                            📺 Video IA
+                        </button>
+                        <button onclick="showSection('deepfakes')" style="background: var(--neutral-800); color: var(--neutral-100); border: none; padding: var(--space-sm); border-radius: var(--radius-md); cursor: pointer; transition: all 200ms;" onmouseover="this.style.background='var(--neutral-700)'" onmouseout="this.style.background='var(--neutral-800)'">
+                            🎭 Deepfakes
+                        </button>
+                        <button onclick="showSection('vfx')" style="background: var(--neutral-800); color: var(--neutral-100); border: none; padding: var(--space-sm); border-radius: var(--radius-md); cursor: pointer; transition: all 200ms;" onmouseover="this.style.background='var(--neutral-700)'" onmouseout="this.style.background='var(--neutral-800)'">
+                            🎬 VFX
+                        </button>
+                        <button onclick="showSection('casos-estudio')" style="background: var(--neutral-800); color: var(--neutral-100); border: none; padding: var(--space-sm); border-radius: var(--radius-md); cursor: pointer; transition: all 200ms;" onmouseover="this.style.background='var(--neutral-700)'" onmouseout="this.style.background='var(--neutral-800)'">
+                            📚 Casos de Estudio
+                        </button>
+                        <button onclick="showSection('timeline')" style="background: var(--neutral-800); color: var(--neutral-100); border: none; padding: var(--space-sm); border-radius: var(--radius-md); cursor: pointer; transition: all 200ms;" onmouseover="this.style.background='var(--neutral-700)'" onmouseout="this.style.background='var(--neutral-800)'">
+                            ⏰ Timeline
+                        </button>
+                        <button onclick="showSection('glosario')" style="background: var(--neutral-800); color: var(--neutral-100); border: none; padding: var(--space-sm); border-radius: var(--radius-md); cursor: pointer; transition: all 200ms;" onmouseover="this.style.background='var(--neutral-700)'" onmouseout="this.style.background='var(--neutral-800)'">
+                            📖 Glosario
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección Generación de Video -->
+            <section id="video-generation" class="content-section" style="display: none;">
+                <h2 class="section-title">Generación de Video con IA</h2>
+                
+                <div class="card case-study">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <h3 class="card-title">OpenAI Sora - Revolución en Generación de Video</h3>
+                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6,9 12,15 18,9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <p style="margin-bottom: var(--space-sm);">
+                            <strong>Sora</strong> es el modelo de texto a video de OpenAI que puede generar videos de hasta un minuto 
+                            manteniendo calidad visual y adherencia al prompt del usuario.
+                        </p>
+                        
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Características Principales:</h4>
+                        <ul class="feature-list">
+                            <li><strong>Text-to-Video:</strong> Genera videos exclusivamente desde instrucciones de texto</li>
+                            <li><strong>Image-to-Video:</strong> Anima imágenes estáticas existentes con precisión</li>
+                            <li><strong>Video Extension:</strong> Extiende videos existentes o llena frames faltantes</li>
+                            <li><strong>Escenas Complejas:</strong> Múltiples personajes, movimientos específicos, detalles precisos</li>
+                            <li><strong>Entendimiento Físico:</strong> Comprende cómo los objetos existen en el mundo real</li>
+                        </ul>
+
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Ejemplos de Prompts:</h4>
+                        <div style="background: var(--neutral-700); padding: var(--space-sm); border-radius: var(--radius-md); margin: var(--space-sm) 0;">
+                            <p style="font-style: italic; margin-bottom: var(--space-xs);">
+                                "Una mujer elegante camina por una calle de Tokio llena de luces de neón brillantes y señalización urbana animada"
+                            </p>
+                            <p style="font-style: italic; margin-bottom: var(--space-xs);">
+                                "Vista de dron de olas rompiendo contra los acantilados rugosos a lo largo de la playa Garay Point de Big Sur"
+                            </p>
+                            <p style="font-style: italic;">
+                                "Escena animada que presenta un primer plano de un monstruo peludo y pequeño arrodillado junto a una vela roja derretida"
+                            </p>
+                        </div>
+
+                        <h4 style="color: var(--warning-500); margin: var(--space-md) 0 var(--space-sm) 0;">Limitaciones Actuales:</h4>
+                        <ul class="feature-list">
+                            <li>Dificultad para simular física de escenas complejas</li>
+                            <li>Puede confundir detalles espaciales (izquierda/derecha)</li>
+                            <li>Movimiento físicamente implausible en algunos casos</li>
+                            <li>Objetos pueden aparecer espontáneamente en escenas con muchas entidades</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3 class="card-title">Google Veo (Anteriormente Lumiere)</h3>
+                        <p style="margin-bottom: var(--space-sm);">Generador de video AI de Google que evolucionó de Lumiere a Veo en 2024.</p>
+                        <div class="tag">Google</div>
+                        <div class="tag">Texto a Video</div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Luma AI Dream Machine</h3>
+                        <p style="margin-bottom: var(--space-sm);">Nuevo generador de video AI lanzado públicamente en 2024.</p>
+                        <div class="tag">Luma AI</div>
+                        <div class="tag">Acceso Público</div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Amazon Nova</h3>
+                        <p style="margin-bottom: var(--space-sm);">Nova Canvas para imágenes y Nova Reels para videos. Procesa texto, imagen y video como prompts.</p>
+                        <div class="tag">Amazon</div>
+                        <div class="tag">Multi-modal</div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Midjourney Video</h3>
+                        <p style="margin-bottom: var(--space-sm);">Conocido por generación de imágenes, promete herramientas de video (aún no lanzado).</p>
+                        <div class="tag">Midjourney</div>
+                        <div class="tag">Próximamente</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección Deepfakes -->
+            <section id="deepfakes" class="content-section" style="display: none;">
+                <h2 class="section-title">Deepfakes y Actores Digitales</h2>
+                
+                <div class="card case-study">
+                    <h3 style="color: var(--primary-500); margin-bottom: var(--space-md);">¿Qué son los Deepfakes?</h3>
+                    <p style="margin-bottom: var(--space-sm);">
+                        Los deepfakes son una tecnología de síntesis de medios que utiliza <strong>intelig artificial</strong> 
+                        para crear contenido falso realista, típicamente videos donde una persona aparece diciendo o haciendo 
+                        cosas que nunca hizo.
+                    </p>
+                    
+                    <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Aplicaciones Positivas en Cine:</h4>
+                    <ul class="feature-list">
+                        <li><strong>Rejuvenecimiento Digital:</strong> Hacer que actores se vean más jóvenes</li>
+                        <li><strong>Actores Póstumos:</strong> Revivir performers fallecidos para nuevas producciones</li>
+                        <li><strong>Doblaje Sincronizado:</strong> Sincronización perfecta de labios con diferentes idiomas</li>
+                        <li><strong>Stunts Seguros:</strong> Reemplazar stunt doubles en escenas peligrosas</li>
+                        <li><strong>Corrección de Errores:</strong> Reparar tomas sin necesidad de re-filmación</li>
+                    </ul>
+
+                    <h4 style="color: var(--warning-500); margin: var(--space-md) 0 var(--space-sm) 0;">Preocupaciones Éticas:</h4>
+                    <ul class="feature-list">
+                        <li>Uso no autorizado de la imagen de personas</li>
+                        <li>Desinformación y contenido malicioso</li>
+                        <li>Impacto en la industria del entretenimiento</li>
+                        <li>Necesidad de regulación y consentimiento</li>
+                    </ul>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3 class="card-title">Casos de Uso Comunes</h3>
+                        <ul class="feature-list" style="margin-top: var(--space-sm);">
+                            <li>De-aging de actores (ej: Robert De Niro en "Irishman")</li>
+                            <li>Creación de dobles digitales</li>
+                            <li>Sustitución de actores problemáticos</li>
+                            <li>Adaptación de películas clásicas</li>
+                            <li>Preservación de talento único</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Tecnologías Involucradas</h3>
+                        <div style="margin-top: var(--space-sm);">
+                            <div class="tag">GANs</div>
+                            <div class="tag">Autoencoders</div>
+                            <div class="tag">Transformers</div>
+                            <div class="tag">Neural Rendering</div>
+                            <div class="tag">Face Swapping</div>
+                            <div class="tag">Voice Cloning</div>
+                        </div>
+                        <p style="margin-top: var(--space-md); color: var(--neutral-400);">
+                            La combinación de estas tecnologías permite crear impostaciones casi indistinguibles de la realidad.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card case-study">
+                    <h3 style="color: var(--primary-500); margin-bottom: var(--space-md);">Ejemplo: "Indiana Jones 5" - De-aging con IA</h3>
+                    <p style="margin-bottom: var(--space-sm);">
+                        La franquicia utilizó tecnología de de-aging para hacer que Harrison Ford se viera 40 años más joven 
+                        en algunas escenas, demostrando el potencial de la IA para mantener continuidad narrativa sin comprometer 
+                        la integridad del actor.
+                    </p>
+                    <p style="color: var(--neutral-400);">
+                        <strong>Impacto:</strong> Esta técnica permitió escenas imposibles con el actor real, manteniendo 
+                        la autenticidad emocional que CGI tradicional no puede lograr.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Sección Escritura de Guiones -->
+            <section id="scriptwriting" class="content-section" style="display: none;">
+                <h2 class="section-title">Escritura de Guiones con IA</h2>
+                
+                <div class="card case-study">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <h3 class="card-title">IA como Asistente de Escritura Creativa</h3>
+                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6,9 12,15 18,9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <p style="margin-bottom: var(--space-sm);">
+                            Los modelos de lenguaje como <strong>ChatGPT, Claude y GPT-4</strong> están transformando 
+                            la escritura de guiones, no como reemplazo sino como herramientas que amplifican la creatividad humana.
+                        </p>
+                        
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Aplicaciones Prácticas:</h4>
+                        <ul class="feature-list">
+                            <li><strong>Generación de Ideas:</strong> Brainstorming de conceptos, tramas y personajes</li>
+                            <li><strong>Desarrollo de Personajes:</strong> Creación de backstories y motivaciones</li>
+                            <li><strong>Estructura Narrativa:</strong> Análisis y sugerencia de arcos narrativos</li>
+                            <li><strong>Diálogos:</strong> Exploración de diferentes estilos de conversación</li>
+                            <li><strong>Adaptación:</strong> Conversión de libros, artículos o noticias a formato cinematográfico</li>
+                            <li><strong>Escritura Asistida:</strong> Sugerencias contextuales y corrección de estilo</li>
+                        </ul>
+
+                        <h4 style="color: var(--warning-500); margin: var(--space-md) 0 var(--space-sm) 0;">Limitaciones y Consideraciones:</h4>
+                        <ul class="feature-list">
+                            <li>Los LLMs no pueden escribir guiones completos largos de una vez</li>
+                            <li>Falta de originalidad emocional profunda</li>
+                            <li>Dificultad con continuidad narrativa compleja</li>
+                            <li>Dependencia excesiva puede atrofiar creatividad humana</li>
+                            <li>Cuestiones de derechos de autor y atribución</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3 class="card-title">Herramientas Especializadas</h3>
+                        <ul class="feature-list" style="margin-top: var(--space-sm);">
+                            <li><strong>Saga:</strong> Escritor de guiones basado en GPT</li>
+                            <li><strong>ChatGPT:</strong> Asistente general para escritura</li>
+                            <li><strong>NovelCrafter:</strong> Planificación y escritura de novelas y guiones</li>
+                            <li><strong>WriterDuet:</strong> Colaboración con IA en tiempo real</li>
+                            <li><strong>Final Draft:</strong> Integración de IA en software profesional</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Flujo de Trabajo Recomendado</h3>
+                        <ol style="margin-top: var(--space-sm); padding-left: var(--space-md);">
+                            <li style="margin-bottom: var(--space-xs);">Ideación y brainstorming con IA</li>
+                            <li style="margin-bottom: var(--space-xs);">Desarrollo de outline con asistencia</li>
+                            <li style="margin-bottom: var(--space-xs);">Escritura colaborativa humano-IA</li>
+                            <li style="margin-bottom: var(--space-xs);">Refinamiento y edición manual</li>
+                            <li>Validación creativa y coherencia narrativa</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="card case-study">
+                    <h3 style="color: var(--primary-500); margin-bottom: var(--space-md);">Caso: "Memory Maker" - Uso de ChatGPT</h3>
+                    <p style="margin-bottom: var(--space-sm);">
+                        El director Nik Kleverov utilizó ChatGPT para crear el guión de ciencia ficción corta "Memory Maker", 
+                        demostrando cómo la IA puede ser una herramienta valiosa para ideación y desarrollo inicial.
+                    </p>
+                    <p style="color: var(--neutral-400);">
+                        <strong>Lección aprendida:</strong> La IA fue efectiva para generar ideas base y explorar conceptos, 
+                        pero la visión creativa final y la ejecución artística permanecieron enteramente humanas.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Sección VFX -->
+            <section id="vfx" class="content-section" style="display: none;">
+                <h2 class="section-title">VFX y Efectos Visuales con Machine Learning</h2>
+                
+                <div class="card case-study">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <h3 class="card-title">Revolución en Efectos Visuales</h3>
+                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6,9 12,15 18,9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <p style="margin-bottom: var(--space-sm);">
+                            El <strong>Machine Learning</strong> está transformando los VFX al automatizar tareas tradicionalmente 
+                            laboriosas y permitir efectos imposibles con técnicas convencionales.
+                        </p>
+                        
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Aplicaciones Principales:</h4>
+                        <ul class="feature-list">
+                            <li><strong>Rotoscoping Automatizado:</strong> Extracción de objetos con precisión superior</li>
+                            <li><strong>Matte Generation:</strong> Creación automática de mattes para composición</li>
+                            <li><strong>Motion Tracking:</strong> Seguimiento de movimiento con mayor precisión</li>
+                            <li><strong>Style Transfer:</strong> Aplicación de estilos artísticos a secuencias completas</li>
+                            <li><strong>Enhancement:</strong> Mejora automática de calidad y resolución</li>
+                            <li><strong>Simulation:</strong> Simulaciones de partículas, fluidos y explosiones más realistas</li>
+                        </ul>
+
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Herramientas y Empresas:</h4>
+                        <ul class="feature-list">
+                            <li><strong>Digital Domain:</strong> Avengers: Infinity War/Endgame, She-Hulk</li>
+                            <li><strong>Wylie Co. VFX:</strong> Automatización de tareas intensivas</li>
+                            <li><strong>Image Engine:</strong> Efectos invisibles en películas como "Lone Survivor"</li>
+                            <li><strong>Adobe After Effects:</strong> Integración de IA en plugins</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3 class="card-title">Técnicas Emergentes</h3>
+                        <ul class="feature-list" style="margin-top: var(--space-sm);">
+                            <li><strong>Neural Rendering:</strong> Creación de efectos desde redes neuronales</li>
+                            <li><strong>Deep Learning Compositing:</strong> Composición inteligente</li>
+                            <li><strong>AI Upscaling:</strong> Aumento de resolución inteligente</li>
+                            <li><strong>Predictive Animation:</strong> Animación predictiva</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Beneficios Clave</h3>
+                        <ul class="feature-list" style="margin-top: var(--space-sm);">
+                            <li><strong>Tiempo:</strong> Reducción significativa de tiempos de producción</li>
+                            <li><strong>Precisión:</strong> Mayor exactitud en tareas repetitivas</li>
+                            <li><strong>Costo:</strong> Disminución de costos de producción</li>
+                            <li><strong>Creatividad:</strong> Más tiempo para aspectos creativos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card case-study">
+                    <h3 style="color: var(--primary-500); margin-bottom: var(--space-md);">Casos de Estudio Destacados</h3>
+                    <div class="grid grid-2" style="gap: var(--space-sm);">
+                        <div>
+                            <h4 style="color: var(--primary-100); margin-bottom: var(--space-xs);">Avengers: Endgame</h4>
+                            <p style="font-size: 14px; color: var(--neutral-400);">
+                                Digital Domain utilizó machine learning para crear versiones más jóvenes de actores y 
+                                secuencias complejas de batalla.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--primary-100); margin-bottom: var(--space-xs);">She-Hulk (Disney+)</h4>
+                            <p style="font-size: 14px; color: var(--neutral-400);">
+                                Uso innovador de IA para crear el personaje titular, combinando actuaciones reales 
+                                con efectos CGI generados por ML.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--primary-100); margin-bottom: var(--space-xs);">The Irishman</h4>
+                            <p style="font-size: 14px; color: var(--neutral-400);">
+                                De-aging completo de Robert De Niro, Al Pacino y Joe Pesci usando tecnología de 
+                                aprendizaje automático.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--primary-100); margin-bottom: var(--space-xs);">Lone Survivor</h4>
+                            <p style="font-size: 14px; color: var(--neutral-400);">
+                                Efectos "invisibles" para crear explosions y efectos de guerra realistas sin 
+                                comprometer la seguridad.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección Cinematografía -->
+            <section id="cinematography" class="content-section" style="display: none;">
+                <h2 class="section-title">Cinematografía Automatizada y Producción Virtual</h2>
+                
+                <div class="card case-study">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <h3 class="card-title">Producción Virtual - El Futuro del Rodaje</h3>
+                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6,9 12,15 18,9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <p style="margin-bottom: var(--space-sm);">
+                            La <strong>producción virtual</strong> combina técnicas tradicionales de filmmaking con 
+                            animación digital, VFX y motores de juego en tiempo real, eliminando la necesidad de 
+                            locaciones físicas o pantallas verdes.
+                        </p>
+                        
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Componentes Principales:</h4>
+                        <ul class="feature-list">
+                            <li><strong>LED Walls:</strong> Pantallas LED gigantes que muestran entornos virtuales</li>
+                            <li><strong>Game Engines:</strong> Unreal Engine, Unity para renderizado en tiempo real</li>
+                            <li><strong>Camera Tracking:</strong> Seguimiento preciso de cámaras físicas</li>
+                            <li><strong>Lighting Integration:</strong> Iluminación que responde a entornos virtuales</li>
+                            <li><strong>Motion Capture:</strong> Captura de movimiento para personajes digitales</li>
+                        </ul>
+
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Beneficios Operativos:</h4>
+                        <ul class="feature-list">
+                            <li><strong>Control Total:</strong> Condiciones de iluminación y clima perfectas</li>
+                            <li><strong>Flexibilidad:</strong> Cambio rápido de locaciones sin traslados</li>
+                            <li><strong>Interacción Real:</strong> Actores pueden interactuar con entornos digitales</li>
+                            <li><strong>Eficiencia:</strong> Reducción significativa de tiempos de post-producción</li>
+                            <li><strong>Costos:</strong> Eliminación de gastos de locación y equipo extenso</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3 class="card-title">IA en Cinematografía</h3>
+                        <ul class="feature-list" style="margin-top: var(--space-sm);">
+                            <li><strong>Auto-Framing:</strong> Composición automática de tomas</li>
+                            <li><strong>Color Grading:</strong> Corrección automática de color</li>
+                            <li><strong>Focus Pulling:</strong> Enfoque automático basado en IA</li>
+                            <li><strong>Stabilización:</strong> Estabilización inteligente de imagen</li>
+                            <li><strong>Scene Analysis:</strong> Análisis de escena para optimización</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Empresas Líderes</h3>
+                        <ul class="feature-list" style="margin-top: var(--space-sm);">
+                            <li><strong>Industrial Light & Magic:</strong> Pioneros en tecnología virtual</li>
+                            <li><strong>Walt Disney Studios:</strong> The Mandalorian con StageCraft</li>
+                            <li><strong>Epic Games:</strong> Unreal Engine para producción</li>
+                            <li><strong>ARRI:</strong> Cámaras y sistemas de tracking</li>
+                            <li><strong>Mo-Sys:</strong> Camera tracking y posicionamiento</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card case-study">
+                    <h3 style="color: var(--primary-500); margin-bottom: var(--space-md);">Ejemplo: "The Mandalorian" - StageCraft</h3>
+                    <p style="margin-bottom: var(--space-sm);">
+                        La serie de Disney+ revolucionó la producción cinematográfica con el sistema <strong>StageCraft</strong>, 
+                        utilizando pantallas LED de 360 grados para crear entornos inmersivos en tiempo real.
+                    </p>
+                    <p style="color: var(--neutral-400); margin-bottom: var(--space-sm);">
+                        <strong>Tecnología:</strong> 75 LEDs de 6 metros de altura, 19.5K de resolución total, 
+                        renderizado en tiempo real con Unreal Engine.
+                    </p>
+                    <p style="color: var(--neutral-400);">
+                        <strong>Impacto:</strong> Permitió filmación en cualquier clima, iluminación perfecta, 
+                        y eliminación de 80% del trabajo de post-producción de VFX tradicional.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Sección Sonido -->
+            <section id="sound" class="content-section" style="display: none;">
+                <h2 class="section-title">Diseño de Sonido y Música con IA</h2>
+                
+                <div class="card case-study">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <h3 class="card-title">IA en la Industria Sonora</h3>
+                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6,9 12,15 18,9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <p style="margin-bottom: var(--space-sm);">
+                            La <strong>inteligencia artificial</strong> está transformando el diseño de sonido y la composición musical, 
+                            creando nuevas posibilidades creativas mientras automatiza tareas técnicas.
+                        </p>
+                        
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Aplicaciones en Sonido:</h4>
+                        <ul class="feature-list">
+                            <li><strong>Text-to-SFX:</strong> Generación de efectos de sonido desde texto</li>
+                            <li><strong>Audio Enhancement:</strong> Limpieza y mejora automática de audio</li>
+                            <li><strong>Noise Reduction:</strong> Eliminación inteligente de ruido</li>
+                            <li><strong>Voice Synthesis:</strong> Clonación de voces para doblaje</li>
+                            <li><strong>Sound Restoration:</strong> Restauración de audio histórico</li>
+                            <li><strong>Adaptive Music:</strong> Música que se adapta al contenido visual</li>
+                        </ul>
+
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Herramientas Principales:</h4>
+                        <ul class="feature-list">
+                            <li><strong>ElevenLabs:</strong> Clonación de voz y generación de SFX</li>
+                            <li><strong>Sound Doctor:</strong> Construcción automática de cadenas FX</li>
+                            <li><strong>Amper Music:</strong> Composición musical basada en IA</li>
+                            <li><strong>AIVA:</strong> Composición de bandas sonoras</li>
+                            <li><strong>Artlist:</strong> Búsqueda inteligente y TTS</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3 class="card-title">Composición Musical con IA</h3>
+                        <ul class="feature-list" style="margin-top: var(--space-sm);">
+                            <li><strong>Generación de Melodías:</strong> Creación automática de líneas melódicas</li>
+                            <li><strong>Armonización:</strong> Generación de acordes y progresiones</li>
+                            <li><strong>Orchestration:</strong> Orquestación automática</li>
+                            <li><strong>Style Transfer:</strong> Aplicación de estilos musicales</li>
+                            <li><strong>Adaptive Scoring:</strong> Música que responde a la narrativa</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Procesamiento de Audio</h3>
+                        <ul class="feature-list" style="margin-top: var(--space-sm);">
+                            <li><strong>Mastering Automático:</strong> Ecualización y compresión inteligente</li>
+                            <li><strong>Dial Enhancement:</strong> Mejora automática de diálogos</li>
+                            <li><strong>Foley Generation:</strong> Creación de efectos foley</li>
+                            <li><strong>Spatial Audio:</strong> Sonido 3D automatizado</li>
+                            <li><strong>Dynamic Range:</strong> Control dinámico inteligente</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card case-study">
+                    <h3 style="color: var(--primary-500); margin-bottom: var(--space-md);">Casos de Uso Específicos</h3>
+                    <div class="grid grid-2" style="gap: var(--space-sm);">
+                        <div>
+                            <h4 style="color: var(--primary-100); margin-bottom: var(--space-xs);">Videojuegos Adaptativos</h4>
+                            <p style="font-size: 14px; color: var(--neutral-400);">
+                                IA que compone música en tiempo real según las acciones del jugador y el estado emocional de la escena.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--primary-100); margin-bottom: var(--space-xs);">Doblaje Multiidioma</h4>
+                            <p style="font-size: 14px; color: var(--neutral-400);">
+                                Sincronización perfecta de labios y preservación de emociones vocales en diferentes idiomas.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--primary-100); margin-bottom: var(--space-xs);">Restauración Audio</h4>
+                            <p style="font-size: 14px; color: var(--neutral-400);">
+                                IA para restaurar grabaciones históricas, eliminando ruido y mejorando claridad.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--primary-100); margin-bottom: var(--space-xs);">Podcast Enhancement</h4>
+                            <p style="font-size: 14px; color: var(--neutral-400);">
+                                Herramientas como Adobe Podcast Enhance para limpiar grabaciones amateur automáticamente.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección Timeline -->
+            <section id="timeline" class="content-section" style="display: none;">
+                <h2 class="section-title">Línea de Tiempo: Evolución de IA en Cine</h2>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2024</div>
+                            <div class="timeline-title">Lanzamiento de Sora</div>
+                            <div class="timeline-description">
+                                OpenAI lanza Sora, el generador de video más avanzado hasta la fecha, 
+                                capaz de crear videos de hasta un minuto desde prompts de texto.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2024</div>
+                            <div class="timeline-title">Revolución de Generadores de Video</div>
+                            <div class="timeline-description">
+                                Múltiples empresas lanzan generadores de video AI: Google Veo, Luma Dream Machine, 
+                                Amazon Nova, democratizando la creación de contenido visual.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2023</div>
+                            <div class="timeline-title">Adopción Masiva en VFX</div>
+                            <div class="timeline-description">
+                                Digital Domain y otras casas de VFX integran masivamente ML en workflows 
+                                para Avengers: Endgame, She-Hulk y otros blockbusters.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2019-2022</div>
+                            <div class="timeline-title">Era de los Deepfakes</div>
+                            <div class="timeline-description">
+                                Perfect Day, The Irishman y otras producciones pioneras en el uso de 
+                                de-aging y deepfake para efectos visuales innovadores.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2019</div>
+                            <div class="timeline-title">The Mandalorian - StageCraft</div>
+                            <div class="timeline-description">
+                                Disney lanza StageCraft, revolucionando la producción virtual con 
+                                pantallas LED en tiempo real y eliminando necesidad de green screens.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2018-2023</div>
+                            <div class="timeline-title">LLMs y Escritura Creativa</div>
+                            <div class="timeline-description">
+                                Evolución de GPT, ChatGPT y otros LLMs para asistir en escritura 
+                                de guiones, desarrollo de personajes y análisis narrativo.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2015-2020</div>
+                            <div class="timeline-title">Automatización de VFX</div>
+                            <div class="timeline-description">
+                                Machine Learning se integra en pipelines de VFX para rotoscoping, 
+                                tracking, compositing y generación automática de efectos.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2010-2015</div>
+                            <div class="timeline-title">Primeros Algoritmos de IA</div>
+                            <div class="timeline-description">
+                                Primeros algoritmos de reconocimiento facial y generación automática 
+                                de efectos básicos comienzan a aparecer en producciones comerciales.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección Casos de Estudio -->
+            <section id="casos-estudio" class="content-section" style="display: none;">
+                <h2 class="section-title">Casos de Estudio Detallados</h2>
+                
+                <div class="card case-study">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <h3 class="card-title">Caso 1: "The Irishman" - De-aging Revolucionario</h3>
+                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6,9 12,15 18,9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <p style="margin-bottom: var(--space-sm);">
+                            <strong>Película:</strong> The Irishman (2019), dirigida por Martin Scorsese<br>
+                            <strong>Tecnología:</strong> Rejuvenecimiento digital de Robert De Niro, Al Pacino y Joe Pesci
+                        </p>
+                        
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Desafío Técnico:</h4>
+                        <p style="margin-bottom: var(--space-sm);">
+                            Envejecer hacia atrás a actores de 70+ años para representar personajes de diferentes edades 
+                            sin perder expresividad facial ni autenticidad emocional.
+                        </p>
+                        
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Solución con IA:</h4>
+                        <ul class="feature-list">
+                            <li>Análisis de miles de fotos de archivo de los actores</li>
+                            <li>Machine Learning para crear modelos faciales únicos por actor</li>
+                            <li>Reconstrucción gradual año por año durante décadas</li>
+                            <li>Preservación de expresiones y micro-movimientos únicos</li>
+                        </ul>
+                        
+                        <h4 style="color: var(--success-500); margin: var(--space-md) 0 var(--space-sm) 0;">Resultados:</h4>
+                        <ul class="feature-list">
+                            <li>Efectos indistinguibles de la realidad en algunas escenas</li>
+                            <li>Críticas positivas por innovación técnica</li>
+                            <li>Nominación al Oscar por Mejores Efectos Visuales</li>
+                            <li>Nuevo estándar para de-aging en producciones futuras</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card case-study">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <h3 class="card-title">Caso 2: "The Mandalorian" - Producción Virtual Completa</h3>
+                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6,9 12,15 18,9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <p style="margin-bottom: var(--space-sm);">
+                            <strong>Serie:</strong> The Mandalorian (2019-presente), Disney+<br>
+                            <strong>Tecnología:</strong> Sistema StageCraft con pantallas LED en tiempo real
+                        </p>
+                        
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Innovación Técnica:</h4>
+                        <ul class="feature-list">
+                            <li>Pantallas LED de 270 grados, 6 metros de altura</li>
+                            <li>Resolución total: 19.5K píxeles</li>
+                            <li>Renderizado en tiempo real con Unreal Engine</li>
+                            <li>Iluminación que responde a entornos digitales</li>
+                            <li>Camera tracking con precisión de sub-píxel</li>
+                        </ul>
+                        
+                        <h4 style="color: var(--success-500); margin: var(--space-md) 0 var(--space-sm) 0;">Impacto en Producción:</h4>
+                        <ul class="feature-list">
+                            <li>Eliminación de 80% del trabajo de post-producción tradicional</li>
+                            <li>Filmación en cualquier condición climática</li>
+                            <li>Interacción real de actores con entornos digitales</li>
+                            <li>Reducción significativa de costos de locación</li>
+                            <li>Tiempo de producción 25% más rápido</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card case-study">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <h3 class="card-title">Caso 3: "Memory Maker" - IA en Escritura de Guiones</h3>
+                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6,9 12,15 18,9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <p style="margin-bottom: var(--space-sm);">
+                            <strong>Cortometraje:</strong> Memory Maker (2024)<br>
+                            <strong>Director:</strong> Nik Kleverov (Wonder Studios)<br>
+                            <strong>IA Utilizada:</strong> ChatGPT para desarrollo de guión
+                        </p>
+                        
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Proceso Colaborativo:</h4>
+                        <ul class="feature-list">
+                            <li>Brainstorming inicial con ChatGPT para conceptos de ciencia ficción</li>
+                            <li>Desarrollo de personajes y backstories</li>
+                            <li>Exploración de diferentes arcos narrativos</li>
+                            <li>Refinamiento manual de diálogos y estructura</li>
+                            <li>Validación creativa humana final</li>
+                        </ul>
+                        
+                        <h4 style="color: var(--primary-100); margin: var(--space-md) 0 var(--space-sm) 0;">Lecciones Aprendidas:</h4>
+                        <ul class="feature-list">
+                            <li>IA excelente para ideación inicial y exploración de posibilidades</li>
+                            <li>La visión artística final permanece enteramente humana</li>
+                            <li>IA puede acelerar fases de pre-producción significativamente</li>
+                            <li>Importante mantener equilibrio entre asistencia IA y creatividad</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card case-study">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <h3 class="card-title">Caso 4: ElevenLabs - Revolución en Doblaje</h3>
+                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6,9 12,15 18,9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <p style="margin-bottom: var(--space-sm);">
+                            <strong>Empresa:</strong> ElevenLabs<br>
+                            <strong>Tecnología:</strong> Clonación de voz y síntesis de texto a voz (Text-to-SFX)
+                        </p>
+                        
+                        <h4 style="color: var(--primary-500); margin: var(--space-md) 0 var(--space-sm) 0;">Capacidades Técnicas:</h4>
+                        <ul class="feature-list">
+                            <li>Clonación de voz con muestras de audio mínimas</li>
+                            <li>Síntesis de efectos de sonido desde descripciones de texto</li>
+                            <li>Preservación de emociones y tono vocal</li>
+                            <li>Multiidioma con sincronización de labios automática</li>
+                        </ul>
+                        
+                        <h4 style="color: var(--success-500); margin: var(--space-md) 0 var(--space-sm) 0;">Aplicaciones en Cine:</h4>
+                        <ul class="feature-list">
+                            <li>Doblaje multiidioma sin pérdida de emoción</li>
+                            <li>Restauración de voces de actores históricos</li>
+                            <li>Creación de personajes alienígenas con voces únicas</li>
+                            <li>Corrección de audio sin necesidad de re-grabación</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección Glosario -->
+            <section id="glosario" class="content-section" style="display: none;">
+                <h2 class="section-title">Glosario de Términos</h2>
+                
+                <div class="glossary-term">
+                    <dt>Deepfake</dt>
+                    <dd>Tecnología de IA que crea videos falsos realistas reemplazando el rostro o voz de una persona con otra, usando redes neuronales profundas.</dd>
+                </div>
+
+                <div class="glossary-term">
+                    <dt>GANs (Generative Adversarial Networks)</dt>
+                    <dd>Arquitectura de IA compuesta por dos redes neuronales que compiten entre sí: una genera contenido falso y la otra intenta detectar falsificaciones.</dd>
+                </div>
+
+                <div class="glossary-term">
+                    <dt>De-aging</dt>
+                    <dd>Proceso de rejuvenecimiento digital que hace que actores se vean más jóvenes en pantalla usando IA y efectos visuales.</dd>
+                </div>
+
+                <div class="glossary-term">
+                    <dt>Producción Virtual</dt>
+                    <dd>Técnica que combina elementos físicos con entornos digitales renderizados en tiempo real, eliminando necesidad de green screens tradicionales.</dd>
+                </div>
+
+                <div class="glossary-term">
+                    <dt>Neural Rendering</dt>
+                    <dd>Método de renderizado que usa redes neuronales para generar imágenes o videos, a menudo imposible con renderizado tradicional.</dd>
+                </div>
+
+                <div class="glossary-term">
+                    <dt>Rotoscoping</dt>
+                    <dd>Técnica de extracción de elementos de video frame por frame. La IA automatiza significativamente este proceso.</dd>
+                </div>
+
+                <div class="glossary-term">
+                    <dt>Text-to-Video</dt>
+                    <dd>Generación de videos directamente desde descripciones de texto usando modelos de IA entrenados en grandes datasets visuales.</dd>
+                </div>
+
+                <div class="glossary-term">
+                    <dt>LLM (Large Language Model)</dt>
+                    <dd>Modelo de IA entrenado en texto masivo que puede generar, analizar y manipular lenguaje natural. Usado en escritura de guiones.</dd>
+                </div>
+
+                <div class="glossary-term">
+                    <dt>Motion Capture</dt>
+                    <dd>Captura del movimiento físico de actores para animar personajes digitales. La IA mejora la interpolación y limpieza de datos.</dd>
+                </div>
+
+                <div class="glossary-term">
+                    <dt>Style Transfer</dt>
+                    <dd>Técnica que aplica el estilo artístico de una imagen a otra, ahora aplicada a secuencias completas de video con IA.</dd>
+                </div>
+
+                <div class="glossary-term">
+                    <dt>Upscaling</dt>
+                    <dd>Proceso de aumentar la resolución de imágenes o videos. IA puede generar detalles realistas inexistentes en la imagen original.</dd>
+                </div>
+
+                <div class="glossary-term">
+                    <dt>Digital Human</dt>
+                    <dd>Personaje completamente digital que simula apariencia y comportamiento humano, usado cuando actores no pueden participar.</dd>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let currentSection = 'inicio';
+
+        function showSection(sectionId) {
+            // Ocultar todas las secciones
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Mostrar la sección seleccionada
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
+
+            // Actualizar navegación
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+
+            currentSection = sectionId;
+
+            // Cerrar menú móvil si está abierto
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.remove('open');
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function toggleCard(header) {
+            const card = header.closest('.card');
+            const content = card.querySelector('.card-content');
+            
+            card.classList.toggle('expanded');
+            
+            if (card.classList.contains('expanded')) {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            } else {
+                content.style.maxHeight = '0';
+            }
+        }
+
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchContent(query) {
+            if (!query.trim()) {
+                // Si no hay búsqueda, mostrar sección actual
+                return;
+            }
+            
+            const allText = document.body.textContent.toLowerCase();
+            if (allText.includes(query.toLowerCase())) {
+                console.log('Contenido encontrado para:', query);
+                // Aquí se podría implementar highlighting o scroll automático
+            }
+        }
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            // Expandir todas las tarjetas inicialmente
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                const content = card.querySelector('.card-content');
+                if (content && card.classList.contains('case-study')) {
+                    card.classList.add('expanded');
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                }
+            });
+
+            // Mostrar sección inicial
+            showSection('inicio');
+        });
+
+        // Cerrar menú móvil al hacer clic fuera
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (!sidebar.contains(event.target) && !mobileBtn.contains(event.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>
